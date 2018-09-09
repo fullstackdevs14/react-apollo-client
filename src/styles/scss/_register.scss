@@ -1,0 +1,11 @@
+.register {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .register-form {
+        width: 400px;
+        padding: 16px;
+        box-shadow: 0 0 3px 0 #aaa;
+    }
+}
