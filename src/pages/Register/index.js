@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
 import gql from "graphql-tag";
 import { Mutation } from "react-apollo";
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+
+import { setUser, setToken } from '../../store/actions';
 
 const REGISTER = gql`
   mutation Register($email: String!, $password: String!, $firstname: String!, $lastname: String!) {
@@ -40,7 +43,12 @@ class Register extends Component {
   }
 
   render() {
-    if (this.props.data && this.props.data.signup) {
+    const { data, setUser, setToken } = this.props;
+    if (data && data.signup) {
+
+      setToken(data.signup.token);
+      setUser(data.signup.user);
+
       return <Redirect to="/home"/>
     }
 
@@ -99,4 +107,12 @@ const RegisterPage = () =>
     )}
   </Mutation>;
 
-export default RegisterPage;
+const mapDispatchToProps = dispatch => ({
+  setUser: (user) => dispatch(setUser(user)),
+  setToken: (token) => dispatch(setToken(token))
+})
+
+export default connect(
+  null,
+  mapDispatchToProps
+)(RegisterPage);

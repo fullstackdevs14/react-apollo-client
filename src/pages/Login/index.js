@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
 import { Mutation } from "react-apollo";
 import gql from 'graphql-tag';
@@ -6,9 +7,11 @@ import gql from 'graphql-tag';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 
+import { setUser, setToken } from '../../store/actions';
+
 const LOGIN = gql`
 mutation LOGIN($email: String!, $password: String!) {
-  login(email: "a1@gmail.com", password: "test1234") {
+  login(email: $email, password: $password) {
     user {
       email
       firstname
@@ -32,13 +35,17 @@ class Login extends Component {
   }
 
   submit = (ev) => {
-    console.log(this.state);
     this.props.login({variables: this.state});
     ev.preventDefault();
   }
 
   render() {
-    if (this.props.data && this.props.data.login) {
+    const { data, setUser, setToken } = this.props;
+
+    if (data && data.login) {
+      setUser(data.login.user);
+      setToken(data.login.token);
+
       return <Redirect to="/home"/>
     }
 
@@ -76,10 +83,20 @@ class Login extends Component {
   }
 }
 
+const mapDispatchToProps = dispatch => ({
+  setUser: (user) => dispatch(setUser(user)),
+  setToken: (token) => dispatch(setToken(token))
+})
+
+const ConnectedLogin = connect(
+  null,
+  mapDispatchToProps
+)(Login);
+
 const LoginPage = () =>
   <Mutation mutation={LOGIN}>
     {(login, { data }) => (
-      <Login {...{login, data}}/>
+      <ConnectedLogin {...{login, data}}/>
     )}
   </Mutation>;
 
