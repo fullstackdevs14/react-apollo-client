@@ -1,10 +1,25 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
+import { Mutation } from "react-apollo";
+import gql from 'graphql-tag';
+
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 
+const LOGIN = gql`
+mutation LOGIN($email: String!, $password: String!) {
+  login(email: "a1@gmail.com", password: "test1234") {
+    user {
+      email
+      firstname
+      lastname
+    }
+    token
+  }
+}
+`;
 
-class LoginPage extends Component {
+class Login extends Component {
   state = {
     email: '',
     password: ''
@@ -18,10 +33,15 @@ class LoginPage extends Component {
 
   submit = (ev) => {
     console.log(this.state);
+    this.props.login({variables: this.state});
     ev.preventDefault();
   }
 
   render() {
+    if (this.props.data && this.props.data.login) {
+      return <Redirect to="/home"/>
+    }
+
     return (
       <div className="page login">
         <div className="login-form">
@@ -55,5 +75,12 @@ class LoginPage extends Component {
     )
   }
 }
+
+const LoginPage = () =>
+  <Mutation mutation={LOGIN}>
+    {(login, { data }) => (
+      <Login {...{login, data}}/>
+    )}
+  </Mutation>;
 
 export default LoginPage;
